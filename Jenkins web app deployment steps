@@ -1,0 +1,95 @@
+dlcdnDEPLOYING A WEB APPLICATION USING TOMCAT SERVER
+STEP-1: LAUNCH 2 INSTANCES (MASTER & SLAVE) WITH 8080 PORTS WITH KEYPAIR
+STEP-2: INSTALL GIT, JAVA-1.8.0, MAVEN, JAVA-11, JENKINS ON MASTER
+STEP-3: SETUP AND AGENT IN JENKINS (INSTALL JAVA-11) & GIT JAVA-1.8.0 MAVEN
+ (update-alternatives --config java)
+STEP-4: GET THE SOURCE CODE FROM THE GITHUB
+https://github.com/devopsbyraham/jenkins-java-project.git
+STEP-5: GO TO JENKINS>>BUILD STEP>> INVOKE TOP LEVEL MAVEN TARGETS >> clean package 
+AND BUILD NOW 
+STEP-6: GO TO SLAVE AND INSTALL TOMCAT (https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.76/bin/apache-tomcat-9.0.76.tar.gz)
+tar -zxvf apache-tomcat-9.0.74.tar.gz
+go to apachefolder -- > cd apache-tomcat-9.0.74.tar.gz
+vim webapps/manager/META-INF/context.xml
+
+		Delete these 2 lines (21 & 22)
+vim conf/tomcat-users.xml
+
+		Add these 3 lines at the end of the file
+./bin/startup.sh
+Tomcat will get starts
+Public_ip:8080
+Go to manager apps
+STEP-7: Install Deploy to container  
+STEP-8: go to Jenkins >> add post build step >> deploy war ear to container
+STEP-9: ADD CONTAINER-9, GIVE TOMCAT URL AND TOMCAT CREDENTIALS   (USERNAME: tomcat, PASSWORD: tomcat) [target/*.war & /swiggy]
+STEP-10 : POST BUILD ACTIONS -- > DEPLOY TO EAR/WAR CONTAINER -- > DETAILS
+
+
+TICKETING TOOL: SHAREPOINT
+ORG NAME: TCS
+TASK: DEPLOY/TROUBLESHOOT/BACKUPS/ETC
+CLINET: SWIGGY
+ENV: DEV/TEST/UAT/PROD
+BRANCH: MASTER/DEV/QA/HOTFIX
+REPO: ABCD
+PRIORITY: HIGH/LOW/MEDIUM
+COMMENTS: Pls take backups of builds and db's.
+
+DEVOPS:
+TEKEN BY: RAHAM
+STATUS: YET TO START/WORKING/SUCCESS/FAIL
+TIME: 1 HR
+CLOSED: 6 PM - 7PM
+COMMENTS: -----
+TROUBLESHOOT:
+1. CODE LEVEL ERRORS: DEVELOPER
+2. JOB LEVEL ERRORS: DevOps  (when we configure jobs inappropriately)
+3. SERVER LEVEL ERRORS: DevOps (when we configure servers inappropriately)
+
+APPLICATION.YML: Its the file which contains all the application properties.
+
+NAME: SWIGGY
+WEBSERVER_URL: WWW.swiggy.com
+APPSERVER_URL: -------
+DBSERVER_URL: -------
+PORT: 8080
+LB_URL: -------------------
+JAVA_HEAP MEMEORY: 4GB
+
+DEPLOYING USING ANSIBLE
+
+SETP-1: Jenkins Setup(install 1.8.0 for maven first later java-11,Jenkins,git change to 11 to start)
+STEP-2: Create an Cluster for Ansible
+STEP-3: Go to ansible main server deploy the tomcat playbook
+- hosts: all
+  become: yes
+  tasks:
+    - name: download tomcat from dlcdn
+      get_url:
+        url: "https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.74/bin/apache-tomcat-9.0.74.tar.gz"
+        dest: "/root/"
+
+    - name: untar the apache file
+      command: tar -zxvf apache-tomcat-9.0.74.tar.gz
+
+    - name: rename the tomcat
+      command: mv apache-tomcat-9.0.74 tomcat
+
+    - name: install java
+      command: yum install java-1.8.0-openjdk -y
+
+    - name: setting the roles in tomcat-user.xml file
+      template:
+        src: tomcat-users.xml
+        dest: /root/tomcat/conf/tomcat-users.xml
+
+    - name: delete two lines in context.xml
+      template:
+        src: context.xml
+        dest: /root/tomcat/webapps/manager/META-INF/context.xml
+
+    - name: start the tomcat
+      shell: nohup /root/tomcat/bin/startup.sh
+
+STEP-4: Before Running copy the context.xml & tomcat-users.xml then send to other nodes
